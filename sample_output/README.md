@@ -1,10 +1,10 @@
 # sample_output/
 
-These files are **illustrative examples** showing the shape of `costctl`
-output. They are NOT real account data.
+This folder should contain **real outputs** captured from running `costctl`
+against your workshop AWS account.
 
-When you submit, replace each `*_example.txt` with a real output from running
-`costctl` against your workshop account. Then delete the example files.
+If your repo still has `*_example.txt` files, replace them with real runs and
+delete the example files before submission.
 
 ## How to produce real samples
 
