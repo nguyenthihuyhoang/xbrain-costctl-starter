@@ -1,0 +1,9 @@
+﻿    Cost for Application=TaskIO over last 30 days (2026-04-22 -> 2026-05-21):
+------------------------------------------------------------
+  Amazon Elastic Load Balancing                 $    0.23
+  Amazon Elastic Compute Cloud - Compute        $    0.02
+  EC2 - Other                                   $    0.00
+  Amazon Simple Queue Service                   $    0.00
+  AmazonCloudWatch                              $    0.00
+------------------------------------------------------------
+  TOTAL                                         $    0.25
