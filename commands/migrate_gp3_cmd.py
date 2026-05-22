@@ -79,4 +79,53 @@ def run(args):
         args.apply       — bool, default False (dry-run)
         args.volume_id   — optional str, only migrate this volume when --apply
     """
-    raise NotImplementedError("TODO: implement migrate-gp3 — see module docstring")
+    ec2 = boto3.client("ec2")
+    volumes = []
+    paginator = ec2.get_paginator("describe_volumes")
+    for page in paginator.paginate(Filters=[{"Name": "volume-type", "Values": ["gp2"]}]):
+        volumes.extend(page.get("Volumes", []))
+
+    if args.volume_id:
+        volumes = [volume for volume in volumes if volume["VolumeId"] == args.volume_id]
+
+    if not volumes:
+        print("No gp2 volumes found.")
+        return
+
+    if not args.apply:
+        delta = GP2_PRICE - GP3_PRICE
+        print(f"gp2 volumes (price delta ${delta:.3f}/GB-month):")
+        print("-" * 78)
+        total = 0.0
+        for volume in volumes:
+            size = volume["Size"]
+            savings = size * delta
+            total += savings
+            attached = "(none)"
+            if volume.get("Attachments"):
+                attached = volume["Attachments"][0].get("InstanceId", "(none)")
+            print(
+                f"  {volume['VolumeId']:<24} {size:>5}GB  "
+                f"attached={attached:<18} ${savings:5.2f}/mo savings"
+            )
+        print("-" * 78)
+        print(f"  TOTAL projected savings: ${total:.2f}/mo")
+        print()
+        print("(dry-run - pass --apply --volume-id <id> to migrate one, or --apply to migrate ALL)")
+        return
+
+    for volume in volumes:
+        ec2.modify_volume(
+            VolumeId=volume["VolumeId"],
+            VolumeType="gp3",
+            Iops=3000,
+            Throughput=125,
+        )
+        print(
+            f"  -> modify_volume issued for {volume['VolumeId']} "
+            "(gp3, 3000 IOPS, 125 MiB/s)"
+        )
+
+    print()
+    print("Volume(s) entering 'modifying' -> 'optimizing' state. App stays online.")
+    print("Use `costctl list volume` after about 30 minutes to confirm 'in-use' + gp3.")

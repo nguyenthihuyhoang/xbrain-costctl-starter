@@ -55,8 +55,20 @@ Output should match within a few cents.
 import boto3
 from collections import defaultdict
 from datetime import date, timedelta
+import sys
 
 from commands._common import parse_kv
+
+
+def _safe_arrow():
+  """Return a range arrow that won't crash on narrow Windows console encodings."""
+  arrow = "→"
+  enc = sys.stdout.encoding or "utf-8"
+  try:
+    arrow.encode(enc)
+    return arrow
+  except Exception:
+    return "->"
 
 
 def run(args):
@@ -66,4 +78,37 @@ def run(args):
         args.tag   — "key=value" string (REQUIRED)
         args.days  — int, default 7
     """
-    raise NotImplementedError("TODO: implement cost — see module docstring")
+    tag_key, tag_val = parse_kv(args.tag)
+    # Cost Explorer TimePeriod End is exclusive. If End is today, results cover
+    # up to yesterday. Display that explicitly to match the docstring spec.
+    end_exclusive = date.today()
+    start = end_exclusive - timedelta(days=args.days)
+    end_inclusive = end_exclusive - timedelta(days=1)
+
+    ce = boto3.client("ce")
+    resp = ce.get_cost_and_usage(
+        TimePeriod={"Start": start.isoformat(), "End": end_exclusive.isoformat()},
+        Granularity="DAILY",
+        Metrics=["UnblendedCost"],
+        Filter={"Tags": {"Key": tag_key, "Values": [tag_val]}},
+        GroupBy=[{"Type": "DIMENSION", "Key": "SERVICE"}],
+    )
+
+    totals = defaultdict(float)
+    for day in resp.get("ResultsByTime", []):
+        for group in day.get("Groups", []):
+            service = group.get("Keys", ["Unknown"])[0]
+            amount = group.get("Metrics", {}).get("UnblendedCost", {}).get("Amount", "0")
+            totals[service] += float(amount)
+
+    arrow = _safe_arrow()
+    print(
+      f"    Cost for {tag_key}={tag_val} over last {args.days} days ({start} {arrow} {end_inclusive}):"
+    )
+    print("-" * 60)
+    grand_total = 0.0
+    for service, amount in sorted(totals.items(), key=lambda item: item[1], reverse=True):
+        grand_total += amount
+        print(f"  {service:<45} ${amount:8.2f}")
+    print("-" * 60)
+    print(f"  {'TOTAL':<45} ${grand_total:8.2f}")
