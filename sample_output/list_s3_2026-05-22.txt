@@ -1,0 +1,4 @@
+﻿S3 all - 2 found:
+------------------------------------------------------------------------------
+  myproduct-kb-444203688599    bucket         active       Application=HealthBot, CostCenter=G11, Environment=dev, Owner=dinhdanhnam1@gmail.com, aws:cloudformation:logical-id=S3Bucket, aws:cloudformation:stack-id=arn:aws:cloudformation:us-west-2:444203688599:stack/rag-w-bedrock-kb/40cda310-537a-11f1-be4b-06bf1620a41d, aws:cloudformation:stack-name=rag-w-bedrock-kb
+  taskio-w6-artifacts-444203688599-us-east-1 bucket         active       Application=TaskIO, CostCenter=G11, Environment=dev, Owner=dinhdanhnam1@gmail.com

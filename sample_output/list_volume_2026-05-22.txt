@@ -1,0 +1,4 @@
+﻿VOLUME all - 2 found:
+------------------------------------------------------------------------------
+  vol-0db7cd851cc082a24        gp3-8GB        in-use       Application=TaskIO, CostCenter=G11, Environment=dev, Owner=dinhdanhnam1@gmail.com
+  vol-01dcd89dcf91bc845        gp3-8GB        in-use       Application=TaskIO, CostCenter=G11, Environment=dev, Owner=dinhdanhnam1@gmail.com

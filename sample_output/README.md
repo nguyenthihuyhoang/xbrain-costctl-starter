@@ -27,6 +27,20 @@ The trainer will `git clone` your repo, follow the README, and expect to
 reproduce roughly these outputs (allowing for natural drift in timestamps and
 resource lists between snapshots).
 
+## Extra samples (optional)
+
+It's fine (often helpful) to include additional real outputs for other resource
+types or broader tags, for example:
+
+- `./costctl.py list s3`
+- `./costctl.py list volume`
+- `./costctl.py list rds`
+- `./costctl.py cost --tag CostCenter=<group> --days 90`
+
+Note: `costctl cost` filters by a **cost allocation tag**. Some AWS charges may
+not show up under a given tag (or at all) unless that tag is activated in AWS
+Billing and the resources/services support tag-based allocation.
+
 ## Anti-pattern
 
 Don't paste fabricated output. If `costctl list ec2` against your account
